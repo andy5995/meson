@@ -248,6 +248,10 @@ def _list_buildoptions(coredata: cdata.CoreData, subprojects: T.Optional[T.List[
                 typestr = 'combo'
             elif isinstance(opt, (options.UserIntegerOption, options.UserUmaskOption)):
                 typestr = 'integer'
+                # OctalInt.__str__ returns octal notation (e.g. '0o22'), which PyPy's
+                # JSON encoder uses when serializing int subclasses, producing invalid JSON.
+                if isinstance(opt.value, int):
+                    optdict['value'] = int(opt.value)
             elif isinstance(opt, options.UserStringArrayOption):
                 typestr = 'array'
                 c = opt.printable_choices()
